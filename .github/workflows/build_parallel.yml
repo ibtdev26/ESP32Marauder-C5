@@ -91,6 +91,24 @@ jobs:
           repository: Bodmer/TFT_eSPI
           ref: V2.5.34
           path: CustomTFT_eSPI
+
+      - name: Install TFT_eSPI into Arduino libraries
+        run: |
+          mkdir -p $HOME/Arduino/libraries
+          rm -rf $HOME/Arduino/libraries/TFT_eSPI
+          cp -r CustomTFT_eSPI $HOME/Arduino/libraries/TFT_eSPI
+
+      - name: Apply User_Setup.h to TFT_eSPI
+        run: |
+          cp User_Setup.h $HOME/Arduino/libraries/TFT_eSPI/User_Setup.h
+
+          sed -i 's|^//\(#include <User_Setup.h>\)|\1|' \
+            $HOME/Arduino/libraries/TFT_eSPI/User_Setup_Select.h
+
+          echo "===== TFT_eSPI CONFIG IN USE ====="
+          head -n 20 $HOME/Arduino/libraries/TFT_eSPI/User_Setup.h
+
+
           
       - name: Install XPT2046_Touchscreen
         uses: actions/checkout@v2
@@ -166,13 +184,7 @@ jobs:
         run: |
           find /home/runner/ -name "Custom*"
           
-      - name: Configure TFT_eSPI
-        run: |
-          rm -f CustomTFT_eSPI/User_Setup_Select.h
-          cp User*.h CustomTFT_eSPI/
-          pwd
-          ls -la
-          ls -la CustomTFT_eSPI
+      
 
       - name: Install Esptool
         run: |
@@ -199,14 +211,7 @@ jobs:
             done
           fi
           
-      - name: Configure TFT_eSPI (if needed)
-        run: |
-          pwd
-          if [[ ${{ matrix.board.tft }} == true ]]; then
-            find /home/runner/ -name "*TFT_eSPI*"
-            sed -i 's/^\/\/#include <${{ matrix.board.tft_file }}>/#include <${{ matrix.board.tft_file }}>/' /home/runner/work/ESP32Marauder/ESP32Marauder/CustomTFT_eSPI/User_Setup_Select.h
-          fi
-
+     
       - name: Build Marauder for ${{ matrix.board.name }}
         uses: ArminJo/arduino-test-compile@v3.3.0
         with:
