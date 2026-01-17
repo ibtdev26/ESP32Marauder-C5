@@ -1,3 +1,5 @@
+#warning "USING MY ESP32-C5 ILI9341 USER_SETUP"
+
 #pragma once
 
 /***************************************************
